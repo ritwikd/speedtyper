@@ -30,7 +30,8 @@ def render_play(session_id):
         words = sessions[session_id]['words']
         f_w = words[0]
         o_w = ' '.join(words[1:])
-        return render_template('play.html', name="Ritwik", start_word= f_w , future_words = o_w, s_id = session_id, u_id = sessions[session_id]['num_u'] + 1)
+        sessions[session_id]['num_u'] += 1
+        return render_template('play.html', name="Ritwik", start_word= f_w , future_words = o_w, s_id = session_id, u_id = sessions[session_id]['num_u'])
 
 sessions = {}
 

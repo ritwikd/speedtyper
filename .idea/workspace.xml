@@ -32,11 +32,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="speedtyper.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="speedtyper.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/speedtyper.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="650">
-              <caret line="89" column="56" lean-forward="true" selection-start-line="89" selection-start-column="56" selection-end-line="89" selection-end-column="56" />
+            <state relative-caret-position="259">
+              <caret line="33" column="152" lean-forward="false" selection-start-line="33" selection-start-column="152" selection-end-line="33" selection-end-column="152" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -64,7 +64,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="play.css" pinned="false" current-in-tab="true">
+      <file leaf-file-name="play.css" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/static/css/play.css">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="301">
@@ -120,10 +120,10 @@
         <option value="$PROJECT_DIR$/rating/hth.py" />
         <option value="$PROJECT_DIR$/templates/js/game.js" />
         <option value="$PROJECT_DIR$/templates/css/play.css" />
-        <option value="$PROJECT_DIR$/speedtyper.py" />
         <option value="$PROJECT_DIR$/static/css/play.css" />
         <option value="$PROJECT_DIR$/static/js/game.js" />
         <option value="$PROJECT_DIR$/templates/play.html" />
+        <option value="$PROJECT_DIR$/speedtyper.py" />
       </list>
     </option>
   </component>
@@ -649,20 +649,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/speedtyper.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="650">
-          <caret line="89" column="56" lean-forward="true" selection-start-line="89" selection-start-column="56" selection-end-line="89" selection-end-column="56" />
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/js/game.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
           <caret line="121" column="39" lean-forward="false" selection-start-line="121" selection-start-column="39" selection-end-line="121" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/css/play.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="301">
+          <caret line="167" column="0" lean-forward="true" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -675,11 +673,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/static/css/play.css">
+    <entry file="file://$PROJECT_DIR$/speedtyper.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="167" column="0" lean-forward="true" selection-start-line="167" selection-start-column="0" selection-end-line="167" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="259">
+          <caret line="33" column="152" lean-forward="false" selection-start-line="33" selection-start-column="152" selection-end-line="33" selection-end-column="152" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
