@@ -59,6 +59,7 @@ var finishedGame = function() {
             height: "toggle"
     }, 150);
     $('.postgame').css('display', 'block');
+    $('.postgame .stats').text(Math.round(currentWPM).toString() + ' WPM');
     $('.postgame').fadeIn(250);
 };
 
@@ -92,7 +93,7 @@ var startGame = function() {
     $('.input').attr('maxlength', currentWord.length.toString());
 };
 
-$('.input').keydown(
+$('.input').click(
     function(event) {
         if (!gameRunning) {
             startGame();
@@ -107,8 +108,6 @@ $('.input').keyup(
             }
             currentWordTyped = $(this).val();
             colorInput();
-        } else {
-            $('.input').val('');
         }
     });
 
@@ -129,7 +128,7 @@ CanvasRenderingContext2D.prototype.clear =
 function drawLiveHUD() {
     ctx.fillStyle = '#FFF';
     ctx.font = '48px Rajdhani';
-    ctx.fillText(Math.round(currentWPM).toString(), 10, 195);
+    ctx.fillText(Math.round(currentWPM).toString(), 20, 195);
     ctx.beginPath();
     ctx.strokeStyle = '#000';
     ctx.fillStyle = '#000';

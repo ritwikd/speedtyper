@@ -122,17 +122,21 @@ html, body {
     margin-top: 50px;
     padding: 10px;
     display: none;
+    text-align: center;
 }
 
 .postgame .message {
-    font-size: 52px;
+    font-size: 72px;
     text-transform: uppercase;
     letter-spacing: 8px;
     font-weight: 600;
 }
 
 .postgame .stats {
-
+    font-size: 48px;
+    color: #2266FF;
+    font-weight: 600;
+    padding: 0px;
 }
 
 .input:focus {
