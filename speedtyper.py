@@ -79,6 +79,7 @@ def user_joined(message):
     u_id = message['user']
     id = str(message['session'])
     sessions[id]['users'][u_id] = {'wpm': 0, 'status': False}
+    print('User ' +  str(u_id) + ' joined Session ' + id + '.')
     if sessions[id]['num_u'] > USERS_START:
         emit('countdown', { 'session' : id, 'time' : CDOWN_LENGTH }, broadcast=True)
 
@@ -90,7 +91,7 @@ def update_info(message):
     if id in sessions:
         sessions[id]['users'][u_id]['wpm'] = wpm
         print_session(sessions[id], id)
-        emit('update', sessions[id]['users'], broadcast=True)
+        emit('update', {'session' : id, 'users' : sessions[id]['users'] }, broadcast=True)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
@@ -106,12 +107,8 @@ def end_info(message):
         print('User ' + str(session_winner(sessions[id])) + ' won.')
         users = sessions[id]['users']
         sorted_users = sorted(users.items(), key=lambda user: user[1]['wpm'], reverse=True)
-        emit('finished', { id : sorted_users }, broadcast=True)
+        emit('finished', {'session' : id, 'users' : sorted_users }, broadcast=True)
         del(sessions[id])
-
-@socketio.on('connect', namespace='/play')
-def user_connect():
-    print("User connected.")
 
 @socketio.on('disconnect', namespace='/play')
 def test_disconnect():

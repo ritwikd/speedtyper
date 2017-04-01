@@ -207,16 +207,19 @@ var startGame = function() {
     canvasIntID = setInterval(draw, 8);
     webSocket.emit('started', {user: user_id, session: s_id, data: wordsLeft});
     serverUpID = setInterval(updateServer, 500);
-    webSocket.on('update', function(data) { scoreboard = data;  });
+    webSocket.on('update', function(data) {
+        if (data['session'] === s_id) {
+            scoreboard = data['users'];
+        }
+    });
     webSocket.on('finished', function(data) {
-        final_wpm = scoreboard[user_id]['wpm'];
-        postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
-        scoreboard = data;
-        if (Object.keys(scoreboard)[0] === s_id) {
+        if (data['session'] === s_id) {
+            final_wpm = scoreboard[user_id]['wpm'];
+            postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
+            scoreboard = data['users'];
             updateScoreboard();
         }
     });
-    clearInterval(cdown);
 };
 
 inputElem.keyup(
