@@ -39,17 +39,17 @@ var canvasH = 350;
 
 var statsOffset = 10;
 
-var spedX = 150;
-var spedY = canvasH - statsOffset;
+var spedX = 215;
+var spedY = canvasH;
 
-var spedBackSize = 45;
-var spedUnderWidth = 10;
-var spedBackColor = '#000000';
+var spedRimSize = 40;
+var spedUnderWidth = 0;
+var spedRimColor = '#FFF';
 
 var spedNeedleFact = 0.9;
-var spedNeedleX = 150;
-var spedNeedleY = canvasH - 10;
-var spedNeedleLength = 44;
+var spedNeedleX = spedX;
+var spedNeedleY = spedY - 6;
+var spedNeedleLength = 33;
 var spedNeedleBaseSize = 5;
 var spedNeedleColor = '#F09A22';
 
@@ -72,6 +72,11 @@ var wordsLeftDispX = 500;
 var wordsLeftDispY = canvasH - statsOffset;
 var wordsLeftNumDispX = wordsLeftDispX + 190;
 
+
+var racerStartPointX = 375;
+var racerStartPointY = 150;
+
+
 var webSocket = null;
 var s_id = null;
 var user_id = null;
@@ -92,9 +97,20 @@ var loseColor = '#D64541';
 var winString  = 'WIN';
 var lossString = 'LOSS';
 
+var countdown = null;
+
 var updateServer = function() {
     webSocket.emit('update', {user: user_id, session: s_id, data: currentWPM});
-}
+};
+
+function getTextWidth(text, font) {
+    // re-use canvas object for better performance
+    var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText(text);
+    return metrics.width;
+};
 
 var updateWord = function() {
     wordsLeft -= 1;
@@ -105,6 +121,7 @@ var updateWord = function() {
     inputElem.attr('maxlength', currentWord.length.toString());
                 inputElem.css('background-color', '#898989');
     inputElem.val("");
+    inputElem.css("width", getTextWidth(currentWord, '34px Source Sans Pro').toString() + "px");
 };
 
 var colorInput = function() {
@@ -160,8 +177,6 @@ var updateScoreboard = function() {
             postGameScoresElem.append(scoreLi + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div></li>');
         }
     });
-
-
 };
 
 var updateWPM = function() {
@@ -187,12 +202,12 @@ var startGame = function() {
     gameRunning = true;
     startTime = new Date();
     inputElem.attr('maxlength', currentWord.length.toString());
+    inputElem.css("width", getTextWidth(currentWord, '34px Source Sans Pro').toString() + "px");
     wpmIntId = setInterval(updateWPM, 8);
     canvasIntID = setInterval(draw, 8);
     webSocket.emit('started', {user: user_id, session: s_id, data: wordsLeft});
     serverUpID = setInterval(updateServer, 500);
     webSocket.on('update', function(data) { scoreboard = data;  });
-
     webSocket.on('finished', function(data) {
         final_wpm = scoreboard[user_id]['wpm'];
         postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
@@ -201,16 +216,10 @@ var startGame = function() {
             updateScoreboard();
         }
     });
+    clearInterval(cdown);
 };
 
-inputElem.keydown(
-    function(event) {
-        if (!gameRunning) {
-            startGame();
-        }
-    });
-
-inputElem.keyup(
+inputElem.keypress(
     function(event) {
         if (gameRunning) {
             if (event.keyCode == 32) {
@@ -219,7 +228,7 @@ inputElem.keyup(
                 colorInput();
             }
         }
-    });
+});
 
 CanvasRenderingContext2D.prototype.clear =
   CanvasRenderingContext2D.prototype.clear || function (preserveTransform) {
@@ -237,14 +246,9 @@ CanvasRenderingContext2D.prototype.clear =
 
 function drawSpeedometer() {
     ctx.beginPath();
-    ctx.strokeStyle = spedBackColor;
-    ctx.fillStyle = spedBackColor;
-    ctx.arc(spedX, spedY, spedBackSize, Math.PI, Math.PI * 2, false);
-    ctx.fill();
-
-    ctx.lineWidth = spedUnderWidth;
-    ctx.moveTo(spedX - spedBackSize - 4.5, spedY);
-    ctx.lineTo(spedX + spedBackSize + 4.5, spedY);
+    ctx.strokeStyle = spedRimColor;
+    ctx.fillStyle = spedRimColor;
+    ctx.arc(spedX, spedY, spedRimSize, Math.PI, Math.PI * 2, false);
     ctx.stroke();
 
     ctx.closePath();
@@ -269,29 +273,52 @@ function drawSpeedometer() {
 function drawStats() {
     ctx.fillStyle = '#121212';
     ctx.fillRect(0, canvasH - 50, canvasW, 75);
-    ctx.fillStyle = '#FFF';
+
+    ctx.fillStyle = spedRimColor;
     ctx.font = canvasMedFont;
     ctx.fillText('WPM', wpmDispDescX, wpmDispDescY);
+    ctx.fillStyle = spedNeedleColor;
     ctx.font = canvasBigFont;
     ctx.fillText(Math.round(currentWPM).toString(), wpmDispX, wpmDispY);
 
+    ctx.fillStyle = spedRimColor;
     ctx.font = canvasMedFont;
     ctx.fillText('WORDS LEFT', wordsLeftDispX, wordsLeftDispY);
+    ctx.fillStyle = spedNeedleColor;
     ctx.font = canvasBigFont;
     ctx.fillText(wordsLeft.toString(), wordsLeftNumDispX, wordsLeftDispY);
 
+    ctx.fillStyle = spedRimColor;
     ctx.font = canvasMedFont;
     ctx.fillText('USER ID', userIdDescDispX, userIdDescDispY);
+    ctx.fillStyle = spedNeedleColor;
     ctx.font = canvasBigFont;
     ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
 };
 
 function drawRacers() {
     if (scoreboard == null) { return; }
+    var wpm = 0; var users = 0;
     for (user in scoreboard) {
-        console.log(scoreboard[user]['wpm']);
+        wpm += scoreboard[user]['wpm'];
+        users += 1;
     }
-    console.log(scoreboard);
+    wpm /= users;
+    console.log("Average WPM: " + wpm.toString());
+    for (user in scoreboard) {
+        var user_wpm = scoreboard[user]['wpm'];
+        var pct_diff = 100 * ((user_wpm - wpm)/wpm);
+        console.log('User ' + user + ' WPM is ' +  + ' percent faster.');
+        ctx.beginPath();
+
+        ctx.fillStyle = spedNeedleColor;
+        ctx.strokeStyle = spedNeedleColor;
+        ctx.lineWidth = 3;
+        ctx.arc(racerStartPointX, racerStartPointY, 10, 0, Math.PI * 2, false);
+        ctx.fill();
+        ctx.closePath();
+    }
+
 };
 
 
@@ -299,6 +326,7 @@ function draw() {
     ctx.clear();
 
     drawStats();
+    drawSpeedometer();
     drawRacers();
 
 }

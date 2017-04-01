@@ -3,6 +3,9 @@ from flask_socketio import SocketIO, emit
 import os
 from random import sample
 
+USERS_START = 1
+CDOWN_LENGTH = 5000
+
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 app = Flask(__name__, static_url_path='/static')
 socketio = SocketIO(app)
@@ -20,15 +23,15 @@ def hello_world():
 @app.route('/play/<session_id>')
 def render_play(session_id):
     words = []
-
     if session_id not in sessions:
         print('Creating session ' + session_id)
         words = get_words(word_list, 5)
         sessions[session_id] = {'words': words, 'num_u': 1, 'users': {}}
     else:
+        if sessions[session_id]['num_u'] > 4:
+            return 'Room full.'
         sessions[session_id]['num_u'] += 1
         words = sessions[session_id]['words']
-
 
     f_w = words[0]
     o_w = ' '.join(words[1:])
@@ -64,8 +67,20 @@ def start_info(message):
     u_id = message['user']
     id = str(message['session'])
     words_left = str(message['data'])
-    sessions[id]['users'][u_id] = {'wpm' : 0, 'status' : True}
+    sessions[id]['users'][u_id]['status'] = True
     print('User ' + str(u_id) + ' in Session ' + str(id) + ' started with ' + words_left + ' words left.')
+
+@socketio.on('countdown', namespace='/play')
+def countdown_started(message):
+    print(message)
+
+@socketio.on('joined', namespace='/play')
+def user_joined(message):
+    u_id = message['user']
+    id = str(message['session'])
+    sessions[id]['users'][u_id] = {'wpm': 0, 'status': False}
+    if sessions[id]['num_u'] > USERS_START:
+        emit('countdown', { 'session' : id, 'time' : CDOWN_LENGTH }, broadcast=True)
 
 @socketio.on('update', namespace='/play')
 def update_info(message):
@@ -75,7 +90,7 @@ def update_info(message):
     if id in sessions:
         sessions[id]['users'][u_id]['wpm'] = wpm
         print_session(sessions[id], id)
-    emit('update', sessions[id]['users'], broadcast=True)
+        emit('update', sessions[id]['users'], broadcast=True)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
@@ -94,10 +109,9 @@ def end_info(message):
         emit('finished', { id : sorted_users }, broadcast=True)
         del(sessions[id])
 
-
 @socketio.on('connect', namespace='/play')
-def test_connect():
-    emit('my response', {'data': 'Connected'})
+def user_connect():
+    print("User connected.")
 
 @socketio.on('disconnect', namespace='/play')
 def test_disconnect():

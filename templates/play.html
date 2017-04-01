@@ -61,11 +61,19 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
     <script>
+        s_id = "{{ s_id }}";
+        user_id = {{ u_id }};
         $(document).ready(function() {
             webSocket = io.connect('http://' + document.domain + ':' + location.port + '/play');
-            s_id = "{{ s_id }}";
-            user_id = {{ u_id }};
-            $('.input').focus();
+            webSocket.emit('joined', {user: user_id, session: s_id});
+            webSocket.on('countdown', function(data) {
+                if (data['session'] === s_id) {
+                    countdown = data['time'];
+                    setTimeout(startGame, countdown);
+                }
+            });
+
+            inputElem.focus();
         });
     </script>
 </body>
