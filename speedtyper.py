@@ -1,6 +1,5 @@
 from flask import *
 from flask_socketio import SocketIO, emit
-from rating import hth
 import os
 from random import sample
 
@@ -99,4 +98,4 @@ if __name__ == '__main__':
     word_lines = word_handler.readlines();
     word_handler.close()
     word_list = list(map(clean_word, word_lines))
-    socketio.run(app)
+    socketio.run(app, host="0.0.0.0", port=80)
