@@ -70,8 +70,9 @@ def update_info(message):
     u_id = message['user']
     id = str(message['session'])
     wpm = message['data']
-    sessions[id]['users'][u_id]['wpm'] = wpm
-    print_session(sessions[id], id)
+    if id in sessions:
+        sessions[id]['users'][u_id]['wpm'] = wpm
+        print_session(sessions[id], id)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
