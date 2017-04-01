@@ -19,20 +19,20 @@ def hello_world():
 
 @app.route('/play/<session_id>')
 def render_play(session_id):
+    words = []
+
     if session_id not in sessions:
         print('Creating session ' + session_id)
         words = get_words(word_list, 5)
-        f_w = words[0]
-        o_w = ' '.join(words[1:])
-        sessions[session_id] = { 'words' : words, 'num_u' : 0, 'users' : {} }
-        return render_template('play.html', start_word = f_w, future_words = o_w, s_id = session_id, u_id = 1)
+        sessions[session_id] = {'words': words, 'num_u': 1, 'users': {}}
     else:
-        print("adding new user to session.")
         sessions[session_id]['num_u'] += 1
         words = sessions[session_id]['words']
-        f_w = words[0]
-        o_w = ' '.join(words[1:])
-        return render_template('play.html', start_word= f_w , future_words = o_w, s_id = session_id, u_id = sessions[session_id]['num_u'])
+
+
+    f_w = words[0]
+    o_w = ' '.join(words[1:])
+    return render_template('play.html', start_word=f_w, future_words=o_w, s_id=session_id, u_id=sessions[session_id]['num_u'])
 
 sessions = {}
 
