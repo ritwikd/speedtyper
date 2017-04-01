@@ -121,7 +121,7 @@ var updateScoreboard = function() {
     postGameScoreBoardElem.css('display', 'block');
     postGameScoreBoardElem.fadeIn(150);
     console.log(scoreboard);
-    var scores = scoreboard['scores'];
+    var scores = scoreboard[s_id];
     scores.forEach(function(score) {
         console.log(score);
         var id = score[0];
@@ -166,7 +166,9 @@ var startGame = function() {
     webSocket.on('finished', function(msg) {
         scoreboard = msg;
         console.log('Done.');
-        updateScoreboard();
+        if (Object.keys(scoreboard)[0] === s_id) {
+            updateScoreboard();
+        }
     });
 };
 

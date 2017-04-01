@@ -89,7 +89,7 @@ def end_info(message):
         print('User ' + str(session_winner(sessions[id])) + ' won.')
         users = sessions[id]['users']
         sorted_users = sorted(users.items(), key=lambda user: user[1]['wpm'], reverse=True)
-        emit('finished', { 'scores' : sorted_users }, broadcast=True)
+        emit('finished', { id : sorted_users }, broadcast=True)
         del(sessions[id])
 
 
