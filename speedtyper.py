@@ -27,10 +27,10 @@ def render_play(session_id):
         sessions[session_id] = { 'words' : words, 'num_u' : 0, 'users' : {} }
         return render_template('play.html', start_word = f_w, future_words = o_w, s_id = session_id, u_id = 1)
     else:
+        sessions[session_id]['num_u'] += 1
         words = sessions[session_id]['words']
         f_w = words[0]
         o_w = ' '.join(words[1:])
-        sessions[session_id]['num_u'] += 1
         return render_template('play.html', start_word= f_w , future_words = o_w, s_id = session_id, u_id = sessions[session_id]['num_u'])
 
 sessions = {}
@@ -64,7 +64,6 @@ def start_info(message):
     id = str(message['session'])
     words_left = str(message['data'])
     sessions[id]['users'][u_id] = {'wpm' : 0, 'status' : True}
-    sessions[id]['num_u'] += 1
     print('User ' + str(u_id) + ' in Session ' + str(id) + ' started with ' + words_left + ' words left.')
 
 @socketio.on('update', namespace='/play')
