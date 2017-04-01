@@ -29,6 +29,9 @@ var inputElem = $('.input');
 
 var postgameElem = $('.postgame');
 var postGameStatsElem = $('.postgame .stats');
+var postGameLoaderElem = $('.postgame .loader');
+var postGameScoreBoardElem = $('.postgame .scoreboard');
+var postGameScoresElem = $('.postgame .scores');
 
 var spedX = 150;
 var spedY = 195;
@@ -49,15 +52,20 @@ var wpmDispY = 195;
 
 var wordsLeftDispX = 590;
 var wordsLeftDispY = 195;
+var wordsLeftNumDispX = wordsLeftDispX + 120;
 
-var userIdDispX = 350;
+var userIdDescDispX = 350;
+var userIdDescDispY = 195;
+var userIdDispX = 425;
 var userIdDispY = 195;
-
-var wordsLeftNumDispX = wordsLeftDispX + 125;
 
 var webSocket = null;
 var s_id = null;
-var user_id = Math.floor(Math.random() * 20);
+var user_id = null;
+
+var scoreboard = null;
+var scoreLi = '<li class="score"><div class="uname">';
+var wpmDiv = '</div><div class="wpm">';
 
 var updateServer = function() {
     webSocket.emit('update', {user: user_id, session: s_id, data: currentWPM});
@@ -87,6 +95,7 @@ var colorInput = function() {
 };
 
 var finishedGame = function() {
+    var final_wpm = scoreboard[user_id]['wpm'];
     $('.words-display').css('display', 'none');
     inputElem.css('display', 'none');
     gameRunning = false;
@@ -98,9 +107,28 @@ var finishedGame = function() {
             height: "toggle"
     }, 150);
     postgameElem.css('display', 'block');
-    postGameStatsElem.text(Math.round(currentWPM).toString() + ' WPM');
-    postgameElem.fadeIn(250);
+    postGameStatsElem.text(Math.round(final_wpm).toString() + ' WPM');
+    postgameElem.fadeIn(150);
     webSocket.emit('finished', {user: user_id, session: s_id, data: currentWPM});
+    postGameLoaderElem.css('display', 'block');
+    postGameLoaderElem.fadeIn(150);
+};
+
+var updateScoreboard = function() {
+    postGameLoaderElem.fadeOut(150, function() {
+        postGameLoaderElem.css('display', 'none');
+    });
+    postGameScoreBoardElem.css('display', 'block');
+    postGameScoreBoardElem.fadeIn(150);
+    console.log(scoreboard);
+    var scores = scoreboard['scores'];
+    scores.forEach(function(score) {
+        console.log(score);
+        var id = score[0];
+        var wpm = score[1]["wpm"];
+        postGameScoresElem.append(scoreLi + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div>');
+    });
+
 };
 
 var updateWPM = function() {
@@ -130,6 +158,16 @@ var startGame = function() {
     canvasIntID = setInterval(draw, 8);
     webSocket.emit('started', {user: user_id, session: s_id, data: wordsLeft});
     serverUpID = setInterval(updateServer, 500);
+    webSocket.on('update', function(msg) {
+        scoreboard = msg;
+        console.log(scoreboard);
+    });
+
+    webSocket.on('finished', function(msg) {
+        scoreboard = msg;
+        console.log('Done.');
+        updateScoreboard();
+    });
 };
 
 inputElem.keydown(
@@ -166,33 +204,48 @@ CanvasRenderingContext2D.prototype.clear =
 
 function draw() {
     ctx.clear();
+
     ctx.fillStyle = '#FFF';
+
     ctx.font = '56px Rajdhani';
     ctx.fillText(Math.round(currentWPM).toString(), wpmDispX, wpmDispY);
+
     ctx.font = '22px Rajdhani';
     ctx.fillText('WORDS LEFT', wordsLeftDispX, wordsLeftDispY);
     ctx.font = '32px Rajdhani';
     ctx.fillText(wordsLeft.toString(), wordsLeftNumDispX, wordsLeftDispY);
+
+    ctx.font = '22px Rajdhani';
+    ctx.fillText('USER ID', userIdDescDispX, userIdDescDispY);
+    ctx.font = '32px Rajdhani';
     ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
+
     ctx.beginPath();
     ctx.strokeStyle = spedBackColor;
     ctx.fillStyle = spedBackColor;
     ctx.arc(spedX, spedY, spedBackSize, Math.PI, Math.PI * 2, false);
     ctx.fill();
+
     ctx.lineWidth = spedUnderWidth;
     ctx.moveTo(spedX - spedBackSize - 4.5, spedY);
     ctx.lineTo(spedX + spedBackSize + 4.5, spedY);
     ctx.stroke();
+
     ctx.closePath();
-    var theta = 180 + (currentWPM * spedNeedleFact);
+
+
     ctx.beginPath();
+
     ctx.fillStyle = spedNeedleColor;
     ctx.strokeStyle = spedNeedleColor;
     ctx.lineWidth = 3;
     ctx.arc(spedNeedleX, spedNeedleY, spedNeedleBaseSize, 0, Math.PI * 2, false);
     ctx.fill();
+
+    var theta = 180 + (currentWPM * spedNeedleFact);
     ctx.moveTo(spedNeedleX, spedNeedleY);
     ctx.lineTo(spedNeedleX + spedNeedleLength * Math.cos(Math.PI * theta / 180.0), spedNeedleY + spedNeedleLength * Math.sin(Math.PI * theta / 180.0));
     ctx.stroke();
+
     ctx.closePath();
 }

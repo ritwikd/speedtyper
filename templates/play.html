@@ -40,6 +40,16 @@
             <div class="stats">
                 Stats Here
             </div>
+            <div class="loader">
+                Waiting for everyone to finish...
+            </div>
+            <div class="scoreboard">
+                <hr>
+                <div class="heading">Scores</div>
+                <ul class="scores">
+
+                </ul>
+            </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
@@ -49,6 +59,7 @@
         $(document).ready(function() {
             webSocket = io.connect('http://' + document.domain + ':' + location.port + '/play');
             s_id = "{{ s_id }}";
+            user_id = {{ u_id }};
             $('.input').focus();
         });
     </script>

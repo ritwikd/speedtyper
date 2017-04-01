@@ -154,3 +154,46 @@ html, body {
 .input:focus {
     outline: none;
 }
+
+.loader {
+    font-size: 24px;
+    padding-top: 25px;
+    padding-bottom: 20px;
+    display: none;
+}
+
+.scoreboard {
+    display: none;
+}
+
+.scores {
+    text-align: left;
+    list-style: none;
+    margin-top: 0px;
+}
+
+.uname, .wpm {
+    display: inline-block;
+}
+
+.uname {
+    font-size: 24px;
+    font-weight: 600;
+    padding-right: 7px;
+}
+
+.wpm {
+    font-size: 34px;
+    color: #2266FF;
+}
+
+.scoreboard .heading {
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-align: center;
+    font-size: 36px;
+    font-color: #000;
+    margin-top: 10px;
+
+}

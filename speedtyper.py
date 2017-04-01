@@ -21,16 +21,16 @@ def hello_world():
 def render_play(session_id):
     if session_id not in sessions:
         print('Creating session ' + session_id)
-        words = get_words(word_list, 20)
+        words = get_words(word_list, 5)
         f_w = words[0]
         o_w = ' '.join(words[1:])
-        sessions[session_id] = { 'words' : words, 'users' : {} }
-        return render_template('play.html', name="Ritwik", start_word = f_w, future_words = o_w, s_id = session_id)
+        sessions[session_id] = { 'words' : words, 'num_u' : 0, 'users' : {} }
+        return render_template('play.html', name="Ritwik", start_word = f_w, future_words = o_w, s_id = session_id, u_id = 1)
     else:
         words = sessions[session_id]['words']
         f_w = words[0]
         o_w = ' '.join(words[1:])
-        return render_template('play.html', name="Ritwik", start_word= f_w , future_words = o_w, s_id = session_id)
+        return render_template('play.html', name="Ritwik", start_word= f_w , future_words = o_w, s_id = session_id, u_id = sessions[session_id]['num_u'] + 1)
 
 sessions = {}
 
@@ -63,6 +63,7 @@ def start_info(message):
     id = str(message['session'])
     words_left = str(message['data'])
     sessions[id]['users'][u_id] = {'wpm' : 0, 'status' : True}
+    sessions[id]['num_u'] += 1
     print('User ' + str(u_id) + ' in Session ' + str(id) + ' started with ' + words_left + ' words left.')
 
 @socketio.on('update', namespace='/play')
@@ -73,6 +74,7 @@ def update_info(message):
     if id in sessions:
         sessions[id]['users'][u_id]['wpm'] = wpm
         print_session(sessions[id], id)
+    emit('update', sessions[id]['users'], broadcast=True)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
@@ -83,7 +85,10 @@ def end_info(message):
     sessions[id]['users'][u_id]['status'] = False
     if session_finished(sessions[id]):
         print('Session ' + str(id) + ' finished.')
-        print('Winner was ' + str(session_winner(sessions[id])))
+        print('User ' + str(session_winner(sessions[id])) + ' won.')
+        users = sessions[id]['users']
+        sorted_users = sorted(users.items(), key=lambda user: user[1]['wpm'], reverse=True)
+        emit('finished', { 'scores' : sorted_users }, broadcast=True)
         del(sessions[id])
 
 
