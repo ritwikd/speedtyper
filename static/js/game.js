@@ -122,6 +122,7 @@ var updateScoreboard = function() {
     postGameScoreBoardElem.fadeIn(150);
     console.log(scoreboard);
     var scores = scoreboard[s_id];
+    console.log(scores);
     scores.forEach(function(score) {
         console.log(score);
         var id = score[0];
