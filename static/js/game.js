@@ -219,7 +219,7 @@ var startGame = function() {
     clearInterval(cdown);
 };
 
-inputElem.keypress(
+inputElem.keyup(
     function(event) {
         if (gameRunning) {
             if (event.keyCode == 32) {
