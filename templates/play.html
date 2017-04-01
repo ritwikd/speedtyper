@@ -48,7 +48,7 @@
     <script>
         $(document).ready(function() {
             webSocket = io.connect('http://' + document.domain + ':' + location.port + '/play');
-            s_id = {{ s_id }};
+            s_id = "{{ s_id }}";
             $('.input').focus();
         });
     </script>

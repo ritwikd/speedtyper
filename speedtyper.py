@@ -34,8 +34,9 @@ def render_play(session_id):
 
 sessions = {}
 
-def print_session(session):
+def print_session(session, s_id):
     users = session['users']
+    print("Session: " + str(s_id))
     for u_id in users:
         print('User ' + str(u_id) + ': ' + str(users[u_id]['wpm']))
 
@@ -62,7 +63,7 @@ def start_info(message):
     id = str(message['session'])
     words_left = str(message['data'])
     sessions[id]['users'][u_id] = {'wpm' : 0, 'status' : True}
-    print('User ' + str(u_id) + ' in Session ' + str(u_id) + str(id) + ' started with ' + words_left + ' words left.')
+    print('User ' + str(u_id) + ' in Session ' + str(id) + ' started with ' + words_left + ' words left.')
 
 @socketio.on('update', namespace='/play')
 def update_info(message):
@@ -70,7 +71,7 @@ def update_info(message):
     id = str(message['session'])
     wpm = message['data']
     sessions[id]['users'][u_id]['wpm'] = wpm
-    print_session(sessions[id])
+    print_session(sessions[id], id)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
