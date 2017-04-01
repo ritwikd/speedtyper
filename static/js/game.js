@@ -28,7 +28,8 @@ var wpmIntId = null;
 var inputElem = $('.input');
 
 var postgameElem = $('.postgame');
-var postGameStatsElem = $('.postgame .stats');
+var postGameWPMElem = $('.postgame .stats .final-wpm');
+var postGameWoLElem = $('.postgame .stats .wol');
 var postGameLoaderElem = $('.postgame .loader');
 var postGameScoreBoardElem = $('.postgame .scoreboard');
 var postGameScoresElem = $('.postgame .scores');
@@ -82,6 +83,15 @@ var wpmDiv = '</div><div class="wpm">';
 
 var final_wpm;
 
+var inputGoodColor = '#00ee66';
+var inputBadColor = '#BB3333';
+
+var winColor = '#03A678';
+var loseColor = '#D64541';
+
+var winString  = 'WIN';
+var lossString = 'LOSS';
+
 var updateServer = function() {
     webSocket.emit('update', {user: user_id, session: s_id, data: currentWPM});
 }
@@ -103,9 +113,9 @@ var colorInput = function() {
     var goodSoFar = currentInput === currentWord.slice(0, numCharsWord);
     if (goodSoFar) {
         correctChars += 1;
-        inputElem.css('background-color', '#00ee66');
+        inputElem.css('background-color', inputGoodColor);
     } else {
-        inputElem.css('background-color', '#BB3333');
+        inputElem.css('background-color', inputBadColor);
     }
 };
 
@@ -122,7 +132,7 @@ var finishedGame = function() {
             height: "toggle"
     }, 150);
     postgameElem.css('display', 'block');
-    postGameStatsElem.text(Math.round(final_wpm).toString() + ' WPM');
+    postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
     postgameElem.fadeIn(150);
     webSocket.emit('finished', {user: user_id, session: s_id, data: currentWPM});
     postGameLoaderElem.css('display', 'block');
@@ -138,8 +148,10 @@ var updateScoreboard = function() {
     var scores = scoreboard[s_id];
     var win = scoreboard[s_id][0][0] == user_id;
     console.log(win);
+    winString = (win) ?  winString : lossString;
+    postGameWoLElem.text(winString);
+    postGameWoLElem.css('background-color', (win) ? winColor : loseColor);
     scores.forEach(function(score) {
-        console.log(score);
         var id = score[0];
         var wpm = score[1]["wpm"];
         if (id == user_id) {
@@ -148,6 +160,7 @@ var updateScoreboard = function() {
             postGameScoresElem.append(scoreLi + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div></li>');
         }
     });
+
 
 };
 
@@ -178,16 +191,12 @@ var startGame = function() {
     canvasIntID = setInterval(draw, 8);
     webSocket.emit('started', {user: user_id, session: s_id, data: wordsLeft});
     serverUpID = setInterval(updateServer, 500);
-    webSocket.on('update', function(msg) {
-        scoreboard = msg;
-        console.log(scoreboard);
-    });
+    webSocket.on('update', function(data) { scoreboard = data;  });
 
-    webSocket.on('finished', function(msg) {
+    webSocket.on('finished', function(data) {
         final_wpm = scoreboard[user_id]['wpm'];
-        postGameStatsElem.text(Math.round(final_wpm).toString() + ' WPM');
-        scoreboard = msg;
-        console.log('Done.');
+        postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
+        scoreboard = data;
         if (Object.keys(scoreboard)[0] === s_id) {
             updateScoreboard();
         }
@@ -277,10 +286,19 @@ function drawStats() {
     ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
 };
 
+function drawRacers() {
+    if (scoreboard == null) { return; }
+    for (user in scoreboard) {
+        console.log(scoreboard[user]['wpm']);
+    }
+    console.log(scoreboard);
+};
+
 
 function draw() {
     ctx.clear();
 
     drawStats();
+    drawRacers();
 
 }

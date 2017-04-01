@@ -146,10 +146,34 @@ html, body {
 
 .postgame .stats {
     font-size: 48px;
-    color: #4183D7;
     font-weight: 600;
     padding: 0px;
+    display: inline;
 }
+
+.postgame .stats .final-wpm {
+    display: inline;
+    color: #4183D7;
+}
+
+.postgame .stats .wol {
+    padding: 10px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-right: 10px;
+    display: inline;
+    color: #FFF;
+    font-size: 34px;
+    top: -5px;
+    position: relative;
+}
+
+.postgame .scores .wpm {
+    font-size: 34px;
+    display: inline;
+    color: #4183D7;
+}
+
 
 .input:focus {
     outline: none;
@@ -192,11 +216,6 @@ html, body {
     font-size: 24px;
     font-weight: 600;
     padding-right: 10px;
-}
-
-.wpm {
-    font-size: 34px;
-    color: #4183D7;
 }
 
 .scoreboard .heading {
