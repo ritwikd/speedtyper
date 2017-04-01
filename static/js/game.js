@@ -33,8 +33,13 @@ var postGameLoaderElem = $('.postgame .loader');
 var postGameScoreBoardElem = $('.postgame .scoreboard');
 var postGameScoresElem = $('.postgame .scores');
 
+var canvasW = 750;
+var canvasH = 350;
+
+var statsOffset = 10;
+
 var spedX = 150;
-var spedY = 195;
+var spedY = canvasH - statsOffset;
 
 var spedBackSize = 45;
 var spedUnderWidth = 10;
@@ -42,30 +47,40 @@ var spedBackColor = '#000000';
 
 var spedNeedleFact = 0.9;
 var spedNeedleX = 150;
-var spedNeedleY = 190;
+var spedNeedleY = canvasH - 10;
 var spedNeedleLength = 44;
 var spedNeedleBaseSize = 5;
 var spedNeedleColor = '#F09A22';
 
-var wpmDispX = 20;
-var wpmDispY = 195;
+var canvasSmallFont = '22px Rajdhani';
+var canvasMedFont = '36px Rajdhani';
+var canvasBigFont = '52px Rajdhani';
 
-var wordsLeftDispX = 590;
-var wordsLeftDispY = 195;
-var wordsLeftNumDispX = wordsLeftDispX + 120;
 
-var userIdDescDispX = 350;
-var userIdDescDispY = 195;
-var userIdDispX = 425;
-var userIdDispY = 195;
+var wpmDispDescX = 20;
+var wpmDispDescY = canvasH - statsOffset;
+var wpmDispX = wpmDispDescX + 80;
+var wpmDispY = canvasH - statsOffset;
+
+var userIdDescDispX = 275;
+var userIdDescDispY = canvasH - statsOffset;
+var userIdDispX = userIdDescDispX + 125;
+var userIdDispY = canvasH - statsOffset;
+
+var wordsLeftDispX = 500;
+var wordsLeftDispY = canvasH - statsOffset;
+var wordsLeftNumDispX = wordsLeftDispX + 190;
 
 var webSocket = null;
 var s_id = null;
 var user_id = null;
 
 var scoreboard = null;
-var scoreLi = '<li class="score"><div class="uname">';
+var scoreLi = '<li class="score rounded"><div class="uname">USER ';
+var scoreLiUser = '<li class="score rounded user"><div class="uname">USER ';
 var wpmDiv = '</div><div class="wpm">';
+
+var final_wpm;
 
 var updateServer = function() {
     webSocket.emit('update', {user: user_id, session: s_id, data: currentWPM});
@@ -95,7 +110,7 @@ var colorInput = function() {
 };
 
 var finishedGame = function() {
-    var final_wpm = scoreboard[user_id]['wpm'];
+    final_wpm = scoreboard[user_id]['wpm'];
     $('.words-display').css('display', 'none');
     inputElem.css('display', 'none');
     gameRunning = false;
@@ -121,11 +136,17 @@ var updateScoreboard = function() {
     postGameScoreBoardElem.css('display', 'block');
     postGameScoreBoardElem.fadeIn(150);
     var scores = scoreboard[s_id];
+    var win = scoreboard[s_id][0][0] == user_id;
+    console.log(win);
     scores.forEach(function(score) {
         console.log(score);
         var id = score[0];
         var wpm = score[1]["wpm"];
-        postGameScoresElem.append(scoreLi + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div>');
+        if (id == user_id) {
+            postGameScoresElem.append(scoreLiUser + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div></li>')
+        } else {
+            postGameScoresElem.append(scoreLi + id.toString() + wpmDiv + Math.round(wpm).toString() + ' WPM</div></li>');
+        }
     });
 
 };
@@ -163,6 +184,8 @@ var startGame = function() {
     });
 
     webSocket.on('finished', function(msg) {
+        final_wpm = scoreboard[user_id]['wpm'];
+        postGameStatsElem.text(Math.round(final_wpm).toString() + ' WPM');
         scoreboard = msg;
         console.log('Done.');
         if (Object.keys(scoreboard)[0] === s_id) {
@@ -203,24 +226,7 @@ CanvasRenderingContext2D.prototype.clear =
     }
 };
 
-function draw() {
-    ctx.clear();
-
-    ctx.fillStyle = '#FFF';
-
-    ctx.font = '56px Rajdhani';
-    ctx.fillText(Math.round(currentWPM).toString(), wpmDispX, wpmDispY);
-
-    ctx.font = '22px Rajdhani';
-    ctx.fillText('WORDS LEFT', wordsLeftDispX, wordsLeftDispY);
-    ctx.font = '32px Rajdhani';
-    ctx.fillText(wordsLeft.toString(), wordsLeftNumDispX, wordsLeftDispY);
-
-    ctx.font = '22px Rajdhani';
-    ctx.fillText('USER ID', userIdDescDispX, userIdDescDispY);
-    ctx.font = '32px Rajdhani';
-    ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
-
+function drawSpeedometer() {
     ctx.beginPath();
     ctx.strokeStyle = spedBackColor;
     ctx.fillStyle = spedBackColor;
@@ -249,4 +255,32 @@ function draw() {
     ctx.stroke();
 
     ctx.closePath();
+};
+
+function drawStats() {
+    ctx.fillStyle = '#121212';
+    ctx.fillRect(0, canvasH - 50, canvasW, 75);
+    ctx.fillStyle = '#FFF';
+    ctx.font = canvasMedFont;
+    ctx.fillText('WPM', wpmDispDescX, wpmDispDescY);
+    ctx.font = canvasBigFont;
+    ctx.fillText(Math.round(currentWPM).toString(), wpmDispX, wpmDispY);
+
+    ctx.font = canvasMedFont;
+    ctx.fillText('WORDS LEFT', wordsLeftDispX, wordsLeftDispY);
+    ctx.font = canvasBigFont;
+    ctx.fillText(wordsLeft.toString(), wordsLeftNumDispX, wordsLeftDispY);
+
+    ctx.font = canvasMedFont;
+    ctx.fillText('USER ID', userIdDescDispX, userIdDescDispY);
+    ctx.font = canvasBigFont;
+    ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
+};
+
+
+function draw() {
+    ctx.clear();
+
+    drawStats();
+
 }

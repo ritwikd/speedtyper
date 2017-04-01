@@ -83,6 +83,8 @@ def end_info(message):
     id = str(message['session'])
     wpm = message['data']
     print('User ' + str(u_id) + ' in Session ' + str(id) + ' finished with ' + str(wpm) + ' WPM.')
+    sessions[id]['users'][u_id]['wpm'] = wpm
+    emit('update', sessions[id]['users'], broadcast=True)
     sessions[id]['users'][u_id]['status'] = False
     if session_finished(sessions[id]):
         print('Session ' + str(id) + ' finished.')

@@ -98,7 +98,7 @@ html, body {
 }
 
 .progress-display {
-    background-color: #454545;
+    background-color: #4183D7;
     margin: 0px;
     padding: 0px;
 }
@@ -146,7 +146,7 @@ html, body {
 
 .postgame .stats {
     font-size: 48px;
-    color: #2266FF;
+    color: #4183D7;
     font-weight: 600;
     padding: 0px;
 }
@@ -170,6 +170,18 @@ html, body {
     text-align: left;
     list-style: none;
     margin-top: 0px;
+    padding: 0px;
+}
+
+.score.user {
+    background-color: #DEF;
+    padding: 2px;
+    padding-left: 10px;
+}
+
+.score {
+    padding: 2px;
+    padding-left: 10px;
 }
 
 .uname, .wpm {
@@ -179,12 +191,12 @@ html, body {
 .uname {
     font-size: 24px;
     font-weight: 600;
-    padding-right: 7px;
+    padding-right: 10px;
 }
 
 .wpm {
     font-size: 34px;
-    color: #2266FF;
+    color: #4183D7;
 }
 
 .scoreboard .heading {
@@ -192,8 +204,9 @@ html, body {
     font-weight: 600;
     letter-spacing: 4px;
     text-align: center;
-    font-size: 36px;
+    font-size: 42px;
     font-color: #000;
     margin-top: 10px;
-
+    padding-top: 15px;
+    padding-bottom: 10px;
 }
