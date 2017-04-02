@@ -4,6 +4,7 @@ import os
 from random import sample
 from time import time
 
+# Instance Variables
 USERS_START = 1
 CDOWN_LENGTH = 5000
 NUM_WORDS = 25
@@ -30,7 +31,7 @@ def render_play(session_id):
         words = get_words(word_list, NUM_WORDS)
         sessions[session_id] = {'words': words, 'num_u': 1, 'users': {}, 'start' : -1}
     else:
-        if sessions[session_id]['num_u'] > 4:
+        if sessions[session_id]['num_u'] > 3:
             return 'Room full.'
         sessions[session_id]['num_u'] += 1
         words = sessions[session_id]['words']
@@ -68,7 +69,6 @@ def session_winner(session):
 def start_info(message):
     u_id = message['user']
     id = str(message['session'])
-    words_left = str(message['data'])
     sessions[id]['users'][u_id]['status'] = True
 
 @socketio.on('joined', namespace='/play')

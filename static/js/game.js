@@ -2,6 +2,8 @@
  * Created by Ritwik Dutta on 3/31/2017.
  */
 
+
+// Game Canvas Object
 var gameCanvas = $('.progress-display')[0];
 
 var ctx = gameCanvas.getContext("2d");
@@ -9,6 +11,7 @@ var ctx = gameCanvas.getContext("2d");
 var gameRunning = false;
 var gameDone = false;
 
+// Current and Future Words
 var currentWordElem = $('.words .current');
 var futureWordsElem = $('.words .future');
 var currentWord = $('.words .current')[0].innerText;
@@ -24,12 +27,16 @@ var correctChars = 0;
 var currentWPM = 0;
 var currentProg = 0;
 
+// Instance Variable
+
 var startTime = null;
 var currentTime = null;
 var endTime = null;
 
 var canvasIntID = null;
 var wpmIntId = null;
+
+// DOM Handles
 
 var inputElem = $('.input');
 
@@ -40,11 +47,16 @@ var postGameLoaderElem = $('.postgame .loader');
 var postGameScoreBoardElem = $('.postgame .scoreboard');
 var postGameScoresElem = $('.postgame .scores');
 
+
+// Game Display Variables 
+
 var canvasW = 750;
 var canvasH = 250;
 
 var statsOffset = 10;
 
+
+//Spedometer
 var spedX = 215;
 var spedY = canvasH;
 
@@ -59,21 +71,25 @@ var spedNeedleLength = 33;
 var spedNeedleBaseSize = 5;
 var spedNeedleColor = '#F09A22';
 
+// Fonts
 var canvasSmallFont = '22px Rajdhani';
 var canvasMedFont = '36px Rajdhani';
 var canvasBigFont = '52px Rajdhani';
 
-
+// WPM Display
 var wpmDispDescX = 20;
 var wpmDispDescY = canvasH - statsOffset;
 var wpmDispX = wpmDispDescX + 80;
 var wpmDispY = canvasH - statsOffset;
 
+// User ID Display
 var userIdDescDispX = 275;
 var userIdDescDispY = canvasH - statsOffset;
 var userIdDispX = userIdDescDispX + 125;
 var userIdDispY = canvasH - statsOffset;
 
+
+// Words Left Display
 var wordsLeftDispX = 500;
 var wordsLeftDispY = canvasH - statsOffset;
 var wordsLeftNumDispX = wordsLeftDispX + 190;
@@ -86,9 +102,13 @@ var racerStartPointX = 375;
 var racerStartPointY = 40;
 
 
+// Session and User Instance Variables
+
 var webSocket = null;
 var s_id = null;
 var user_id = null;
+
+//Final Score Variables
 
 var scoreboard = null;
 var final_scoreboard = null;
@@ -107,9 +127,9 @@ var loseColor = '#D64541';
 var winString  = 'WIN';
 var lossString = 'LOSS';
 
-var countdown = null;
+// Game Start Variable
 
-var drawCycle = 0;
+var countdown = null;
 
 var updateServer = function() {
     webSocket.emit('update', {user: user_id, session: s_id, wpm: currentWPM, progress : currentProg });
@@ -130,7 +150,7 @@ var updateWord = function() {
     futureWords = futureWords.slice(1, futureWords.length);
     futureWordsElem.text(futureWords.join(' '));
     inputElem.attr('maxlength', currentWord.length.toString());
-                inputElem.css('background-color', '#898989');
+    inputElem.css('background-color', '#898989');
     inputElem.val("");
     inputElem.css("width", getTextWidth(currentWord, '34px Source Sans Pro').toString() + "px");
 };
@@ -355,15 +375,6 @@ function drawRacers() {
     }
 
 }
-
-function drawCountdown(i) {
-    ctx.clear();
-    ctx.fillStyle = spedRimColor;
-    ctx.font = canvasBigFont;
-    ctx.fillText('Starting in ' + i.toString() + '...', 100 ,50);
-    ctx.fill();
-}
-
 
 function draw() {
     ctx.clear();
