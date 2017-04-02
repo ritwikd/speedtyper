@@ -14,9 +14,15 @@ var futureWordsElem = $('.words .future');
 var currentWord = $('.words .current')[0].innerText;
 var futureWords = $('.words .future')[0].innerText.split(" ");
 
+var add = function(a, b) { return a + b; };
+var glen = function(a) { return a.length; };
+
+var totalChars = currentWord.length + futureWords.map(glen).reduce(add, 0);
+
 var wordsLeft = futureWords.length + 1;
 var correctChars = 0;
 var currentWPM = 0;
+var currentProg = 0;
 
 var startTime = null;
 var currentTime = null;
@@ -27,7 +33,7 @@ var wpmIntId = null;
 
 var inputElem = $('.input');
 
-var postgameElem = $('.postgame');
+var postGameElem = $('.postgame');
 var postGameWPMElem = $('.postgame .stats .final-wpm');
 var postGameWoLElem = $('.postgame .stats .wol');
 var postGameLoaderElem = $('.postgame .loader');
@@ -35,7 +41,7 @@ var postGameScoreBoardElem = $('.postgame .scoreboard');
 var postGameScoresElem = $('.postgame .scores');
 
 var canvasW = 750;
-var canvasH = 350;
+var canvasH = 250;
 
 var statsOffset = 10;
 
@@ -72,9 +78,12 @@ var wordsLeftDispX = 500;
 var wordsLeftDispY = canvasH - statsOffset;
 var wordsLeftNumDispX = wordsLeftDispX + 190;
 
+var wordsRectHeight = 50;
+
+var finishLineX = 625;
 
 var racerStartPointX = 375;
-var racerStartPointY = 150;
+var racerStartPointY = 40;
 
 
 var webSocket = null;
@@ -82,6 +91,7 @@ var s_id = null;
 var user_id = null;
 
 var scoreboard = null;
+var final_scoreboard = null;
 var scoreLi = '<li class="score rounded"><div class="uname">USER ';
 var scoreLiUser = '<li class="score rounded user"><div class="uname">USER ';
 var wpmDiv = '</div><div class="wpm">';
@@ -99,12 +109,13 @@ var lossString = 'LOSS';
 
 var countdown = null;
 
+var drawCycle = 0;
+
 var updateServer = function() {
-    webSocket.emit('update', {user: user_id, session: s_id, data: currentWPM});
+    webSocket.emit('update', {user: user_id, session: s_id, wpm: currentWPM, progress : currentProg });
 };
 
 function getTextWidth(text, font) {
-    // re-use canvas object for better performance
     var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
     var context = canvas.getContext("2d");
     context.font = font;
@@ -148,10 +159,10 @@ var finishedGame = function() {
     $('.progress-display').animate({
             height: "toggle"
     }, 150);
-    postgameElem.css('display', 'block');
+    postGameElem.css('display', 'block');
     postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
-    postgameElem.fadeIn(150);
-    webSocket.emit('finished', {user: user_id, session: s_id, data: currentWPM});
+    postGameElem.fadeIn(150);
+    webSocket.emit('finished', {user: user_id, session: s_id, wpm: currentWPM, progress : currentProg});
     postGameLoaderElem.css('display', 'block');
     postGameLoaderElem.fadeIn(150);
 };
@@ -162,9 +173,8 @@ var updateScoreboard = function() {
     });
     postGameScoreBoardElem.css('display', 'block');
     postGameScoreBoardElem.fadeIn(150);
-    var scores = scoreboard[s_id];
-    var win = scoreboard[s_id][0][0] == user_id;
-    console.log(win);
+    var scores = final_scoreboard;
+    var win = scores[0][0] == user_id;
     winString = (win) ?  winString : lossString;
     postGameWoLElem.text(winString);
     postGameWoLElem.css('background-color', (win) ? winColor : loseColor);
@@ -182,6 +192,8 @@ var updateScoreboard = function() {
 var updateWPM = function() {
     currentTime = new Date();
     currentWPM = correctChars / ((currentTime - startTime)/12000);
+    currentProg = correctChars / totalChars;
+    currentProg = (currentProg > 1) ? 1 : currentProg;
 };
 
 var checkWord = function() {
@@ -201,12 +213,17 @@ var checkWord = function() {
 var startGame = function() {
     gameRunning = true;
     startTime = new Date();
+    inputElem = $('.input');
     inputElem.attr('maxlength', currentWord.length.toString());
     inputElem.css("width", getTextWidth(currentWord, '34px Source Sans Pro').toString() + "px");
+    inputElem.prop('disabled', false);
+    inputElem.prop('placeholder', '');
+    inputElem.focus();
+    inputElem.prop('placeholder', '');
     wpmIntId = setInterval(updateWPM, 8);
     canvasIntID = setInterval(draw, 8);
     webSocket.emit('started', {user: user_id, session: s_id, data: wordsLeft});
-    serverUpID = setInterval(updateServer, 500);
+    serverUpID = setInterval(updateServer, 10);
     webSocket.on('update', function(data) {
         if (data['session'] === s_id) {
             scoreboard = data['users'];
@@ -216,7 +233,7 @@ var startGame = function() {
         if (data['session'] === s_id) {
             final_wpm = scoreboard[user_id]['wpm'];
             postGameWPMElem.text(Math.round(final_wpm).toString() + ' WPM');
-            scoreboard = data['users'];
+            final_scoreboard = data['users'];
             updateScoreboard();
         }
     });
@@ -271,11 +288,11 @@ function drawSpeedometer() {
     ctx.stroke();
 
     ctx.closePath();
-};
+}
 
 function drawStats() {
     ctx.fillStyle = '#121212';
-    ctx.fillRect(0, canvasH - 50, canvasW, 75);
+    ctx.fillRect(0, canvasH - wordsRectHeight, canvasW, wordsRectHeight);
 
     ctx.fillStyle = spedRimColor;
     ctx.font = canvasMedFont;
@@ -297,32 +314,55 @@ function drawStats() {
     ctx.fillStyle = spedNeedleColor;
     ctx.font = canvasBigFont;
     ctx.fillText(user_id.toString(), userIdDispX, userIdDispY);
-};
+}
 
 function drawRacers() {
     if (scoreboard == null) { return; }
-    var wpm = 0; var users = 0;
+    ctx.beginPath();
+    ctx.strokeStyle = spedRimColor;
+    ctx.moveTo(finishLineX, 0);
+    ctx.lineTo(finishLineX, canvasH - wordsRectHeight);
+    ctx.stroke();
+    ctx.closePath();
     for (user in scoreboard) {
-        wpm += scoreboard[user]['wpm'];
-        users += 1;
-    }
-    wpm /= users;
-    console.log("Average WPM: " + wpm.toString());
-    for (user in scoreboard) {
-        var user_wpm = scoreboard[user]['wpm'];
-        var pct_diff = 100 * ((user_wpm - wpm)/wpm);
-        console.log('User ' + user + ' WPM is ' +  + ' percent faster.');
+        var userProg = scoreboard[user]['progress'];
+        var userWPM = scoreboard[user]['wpm'];
+        var userGoing = scoreboard[user]['status'];
+
         ctx.beginPath();
 
+        if (userGoing) {
+            ctx.fillStyle = spedRimColor;
+            ctx.font = canvasSmallFont;
+            ctx.fillText(Math.round(userWPM).toString() + ' WPM', finishLineX + 50, (racerStartPointY * user) + 10);
+        }
+
         ctx.fillStyle = spedNeedleColor;
-        ctx.strokeStyle = spedNeedleColor;
+
+        if (user == user_id) {
+            ctx.fillStyle = spedRimColor;
+        }
+
         ctx.lineWidth = 3;
-        ctx.arc(racerStartPointX, racerStartPointY, 10, 0, Math.PI * 2, false);
+        racerX = 25 + (userProg * 600);
+
+        if (userProg >= 1) {
+            racerX = finishLineX + 15;
+        }
+        ctx.arc(racerX, racerStartPointY * user, 10, 0, Math.PI * 2, false);
         ctx.fill();
         ctx.closePath();
     }
 
-};
+}
+
+function drawCountdown(i) {
+    ctx.clear();
+    ctx.fillStyle = spedRimColor;
+    ctx.font = canvasBigFont;
+    ctx.fillText('Starting in ' + i.toString() + '...', 100 ,50);
+    ctx.fill();
+}
 
 
 function draw() {

@@ -2,9 +2,11 @@ from flask import *
 from flask_socketio import SocketIO, emit
 import os
 from random import sample
+from time import time
 
 USERS_START = 1
 CDOWN_LENGTH = 5000
+NUM_WORDS = 25
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 app = Flask(__name__, static_url_path='/static')
@@ -25,8 +27,8 @@ def render_play(session_id):
     words = []
     if session_id not in sessions:
         print('Creating session ' + session_id)
-        words = get_words(word_list, 5)
-        sessions[session_id] = {'words': words, 'num_u': 1, 'users': {}}
+        words = get_words(word_list, NUM_WORDS)
+        sessions[session_id] = {'words': words, 'num_u': 1, 'users': {}, 'start' : -1}
     else:
         if sessions[session_id]['num_u'] > 4:
             return 'Room full.'
@@ -68,40 +70,58 @@ def start_info(message):
     id = str(message['session'])
     words_left = str(message['data'])
     sessions[id]['users'][u_id]['status'] = True
-    print('User ' + str(u_id) + ' in Session ' + str(id) + ' started with ' + words_left + ' words left.')
-
-@socketio.on('countdown', namespace='/play')
-def countdown_started(message):
-    print(message)
 
 @socketio.on('joined', namespace='/play')
 def user_joined(message):
     u_id = message['user']
     id = str(message['session'])
-    sessions[id]['users'][u_id] = {'wpm': 0, 'status': False}
+    time_since_start = (int(time() * 1000) - sessions[id]['start'])
+    sessions[id]['users'][u_id] = {'wpm': 0, 'status': False, 'progress' : 0}
+
     print('User ' +  str(u_id) + ' joined Session ' + id + '.')
+
     if sessions[id]['num_u'] > USERS_START:
-        emit('countdown', { 'session' : id, 'time' : CDOWN_LENGTH }, broadcast=True)
+        if sessions[id]['start'] > -1:
+            if time_since_start > 0:
+                emit('countdown', {'session': id, 'time': 0}, broadcast=False)
+            else:
+                emit('countdown', {'session': id, 'time': abs(time_since_start)}, broadcast=False)
+        else:
+            sessions[id]['start'] = int(time() * 1000) + CDOWN_LENGTH
+            emit('countdown', {'session': id, 'time': CDOWN_LENGTH}, broadcast=True)
+
 
 @socketio.on('update', namespace='/play')
 def update_info(message):
-    u_id = message['user']
     id = str(message['session'])
-    wpm = message['data']
+
     if id in sessions:
+        u_id = message['user']
+        wpm = message['wpm']
+        prog = message['progress']
+
         sessions[id]['users'][u_id]['wpm'] = wpm
-        print_session(sessions[id], id)
+        sessions[id]['users'][u_id]['progress'] = prog
+
+        #print_session(sessions[id], id)
+
         emit('update', {'session' : id, 'users' : sessions[id]['users'] }, broadcast=True)
 
 @socketio.on('finished', namespace='/play')
 def end_info(message):
     u_id = message['user']
     id = str(message['session'])
-    wpm = message['data']
+    wpm = message['wpm']
+    prog = message['progress']
+
     print('User ' + str(u_id) + ' in Session ' + str(id) + ' finished with ' + str(wpm) + ' WPM.')
+
     sessions[id]['users'][u_id]['wpm'] = wpm
-    emit('update', sessions[id]['users'], broadcast=True)
+    sessions[id]['users'][u_id]['progress'] = prog
     sessions[id]['users'][u_id]['status'] = False
+
+    emit('update', sessions[id]['users'], broadcast=True)
+
     if session_finished(sessions[id]):
         print('Session ' + str(id) + ' finished.')
         print('User ' + str(session_winner(sessions[id])) + ' won.')

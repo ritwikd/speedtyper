@@ -16,7 +16,7 @@
     </div>
     <div class="content">
         <div class="game">
-            <canvas class="progress-display rounded" width="750px" height="350px">
+            <canvas class="progress-display rounded" width="750px" height="250px">
 
             </canvas>
             <div class="words-display rounded">
@@ -63,17 +63,31 @@
     <script>
         s_id = "{{ s_id }}";
         user_id = {{ u_id }};
+        ctx.font = canvasBigFont;
+        ctx.clear();
         $(document).ready(function() {
+            inputElem.prop('placeholder', 'Waiting for player...');
+            inputElem.prop('disabled', true);
             webSocket = io.connect('http://' + document.domain + ':' + location.port + '/play');
             webSocket.emit('joined', {user: user_id, session: s_id});
             webSocket.on('countdown', function(data) {
                 if (data['session'] === s_id) {
                     countdown = data['time'];
+                    i = Math.round(countdown/1000);
+                    if (countdown > 1000) {
+                        (function drawCount() {
+                                inputElem.prop('placeholder', 'Starting in ' + i + '...');
+                            if (!(i--)) {
+                                inputElem.prop('placeholder', '');
+                                return;
+                            }
+                            setTimeout(drawCount, 1000);
+                        })();
+                    }
+                    inputElem.val('');
                     setTimeout(startGame, countdown);
                 }
             });
-
-            inputElem.focus();
         });
     </script>
 </body>
