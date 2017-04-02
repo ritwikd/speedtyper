@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css?family=Rajdhani:300,400,600');
+@import url('https://fonts.googleapis.com/css?family=PT+Mono:400,600');
+
+
+* {
+    -webkit-transition: all 125ms linear;
+    -moz-transition: all 125ms linear;
+    -ms-transition: all 125ms linear;
+    -o-transition: all 125ms linear;
+    transition: all 125ms linear;
+}
+html, body {
+    margin: 0px;
+    padding: 0px;
+    background-color: #232323;
+}
+
+.rounded {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.header {
+    top: 0px;
+    position: fixed;
+    width: 100%;
+    background-color: #121212;
+}
+
+.header .title {
+    color: #FFF;
+    padding: 5px;
+    padding-left: 40px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 48px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 10px;
+}
+
+.full-info {
+    position: relative;
+    top: 150px;
+    font-family: 'Rajdhani',sans-serif;
+    margin-left: auto;
+    margin-right:auto;
+    
+    width: 500px;
+    height: 200px;
+    font-size: 24px;
+    margin-top: 10px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+
+    overflow: hidden;
+    
+    background-color: #454545;
+    
+}
+
+.words-display-title {
+    font-family: 'Rajdhani',sans-serif;
+
+    font-size: 36px;
+    margin-bottom: 50px;
+
+    background-color: #454545;
+    
+    text-align: center;
+    color:#FFF;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.words-display-info {
+    
+    font-family: 'Rajdhani',sans-serif;
+
+    text-align: center;
+    
+    font-size: 24px;
+    margin-bottom: 0px;
+    
+    background-color: #454545;
+    color:#FFF;
+    
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.link {
+    font-family: 'Rajdhani', sans-serif;
+    
+    color: #FFF;
+    text-decoration: none;
+
+    font-size: 24px;
+    font-weight: 600;
+    border: 0px solid;
+    background-color: #454545;
+    letter-spacing: 3px;
+    text-align: center;
+
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 150px;
+
+    position: relative;
+    top: 170px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
